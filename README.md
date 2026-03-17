@@ -1,42 +1,122 @@
-![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
+![](../../workflows/gds/badge.svg) 
+![](../../workflows/docs/badge.svg) 
+![](../../workflows/test/badge.svg) 
+![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# 📡 CFAR-Based Signal Detection (TinyTapeout)
 
-- [Read the documentation for project](docs/info.md)
+- [Project Documentation](docs/info.md)
 
-## What is Tiny Tapeout?
+---
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+## 🚀 Overview
 
-To learn more and get started, visit https://tinytapeout.com.
+This project implements a **Constant False Alarm Rate (CFAR) based signal detection system** using Verilog, designed for TinyTapeout.
 
-## Set up your Verilog project
+The system processes a **14-bit ADC input**, applies an **adaptive threshold**, and detects whether a target signal is present. The result is displayed on a **7-segment output**.
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+---
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+## 🧠 How It Works
 
-## Enable GitHub actions to build the results page
+- Input is received from:
+  - `ui_in[7:0]` → lower 8 bits  
+  - `uio_in[5:0]` → upper 6 bits  
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+- These are combined to form a **14-bit signal**
 
-## Resources
+- A simplified CFAR algorithm:
+  - Computes a **running average threshold**
+  - Compares input signal with threshold
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
+- Detection logic:
+  - `signal > threshold` → **Detected (1)**
+  - Otherwise → **Not detected (0)**
 
-## What next?
+- Output:
+  - `uo_out[6:0]` → 7-segment display  
+  - `uo_out[7]` → detection flag  
 
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+---
+
+## 🔌 Pin Configuration
+
+### Inputs
+- `ui_in[7:0]` → ADC bits [7:0]
+- `uio_in[5:0]` → ADC bits [13:8]
+
+### Outputs
+- `uo_out[6:0]` → 7-segment display  
+- `uo_out[7]` → detection output  
+
+### Bidirectional Pins
+- Used as inputs (`uio_oe = 0`)
+
+---
+
+## 🧪 How to Test
+
+1. Apply clock and reset:
+   - `rst_n = 0` → reset  
+   - `rst_n = 1` → run  
+
+2. Provide input signal:
+
+
+Expected output:
+- 7-segment → 0  
+- detection → 0  
+
+**Case 2: Detection**
+Expected output:
+- 7-segment → 1  
+- detection → 1  
+
+---
+
+## 🏗️ Project Structure
+
+   **Case 1: No detection**
+
+   
+---
+
+## ⚙️ Key Features
+
+- ✅ 14-bit ADC input using limited IO pins  
+- ✅ Adaptive threshold (CFAR logic)  
+- ✅ No buzzer (optimized pin usage)  
+- ✅ 7-segment display output  
+- ✅ TinyTapeout compatible  
+
+---
+
+## 🌍 What is Tiny Tapeout?
+
+Tiny Tapeout is an educational initiative that enables designers to fabricate their digital designs on real silicon at low cost.
+
+👉 Learn more: https://tinytapeout.com
+
+---
+
+## 📌 Notes
+
+- This design uses a **simplified CFAR algorithm** (running average) instead of full sliding window CFAR  
+- Optimized for **low area and IO constraints**  
+
+---
+
+## 🚀 Next Steps
+
+- Submit your design: https://app.tinytapeout.com/  
+- Share your project:
+  - LinkedIn: #tinytapeout  
+  - X (Twitter): #tinytapeout  
+  - Discord: TinyTapeout community  
+
+---
+
+## 👨‍💻 Author
+
+**Ilamparuthi G**
+- Email: ilamparithi2343@gmail.com
