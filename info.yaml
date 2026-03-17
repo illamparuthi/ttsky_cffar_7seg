@@ -1,4 +1,3 @@
-yaml_version: 6
 
 project:
   title: "CFAR Detector without Buzzer"
@@ -43,3 +42,5 @@ pinout:
   uo[5]: "7-seg f"
   uo[6]: "7-seg g"
   uo[7]: "Detection output"
+
+yaml_version: 6
