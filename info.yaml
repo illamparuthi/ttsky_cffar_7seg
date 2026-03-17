@@ -1,7 +1,9 @@
+yaml_version: 6
+
 project:
   title: "CFAR Detector without Buzzer"
   author: "Ilamparuthi G"
-  description: "A simplified CFAR-based signal detection system using 14-bit ADC input. Outputs detection result to 7-segment display."
+  description: "A simplified CFAR-based signal detection system using 14-bit ADC input and 7-segment display output."
   language: "Verilog"
   clock_hz: 10000000
 
@@ -41,5 +43,3 @@ pinout:
   uo[5]: "7-seg f"
   uo[6]: "7-seg g"
   uo[7]: "Detection output"
-
-yaml_version: 6
