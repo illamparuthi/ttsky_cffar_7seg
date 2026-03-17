@@ -18,31 +18,18 @@ tt_um_cfar_nobuzzer dut (
     .uio_in(uio_in),
     .uio_out(uio_out),
     .uio_oe(uio_oe),
+    .ena(1'b1),   // ✅ IMPORTANT
     .clk(clk),
     .rst_n(rst_n)
 );
 
+// Clock generation
 always #5 clk = ~clk;
 
+// Dump waves
 initial begin
     $dumpfile("wave.vcd");
     $dumpvars(0, tb);
-
-    rst_n = 0;
-    #20;
-    rst_n = 1;
-
-    // Low signal
-    ui_in = 8'd10;
-    uio_in = 8'd0;
-    #50;
-
-    // High signal (should detect)
-    ui_in = 8'd200;
-    uio_in = 8'd0;
-    #50;
-
-    $finish;
 end
 
 endmodule
