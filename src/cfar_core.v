@@ -8,13 +8,12 @@ module cfar_core (
 
     reg [13:0] threshold;
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             threshold <= 14'd100;
             detect <= 0;
             bcd_out <= 0;
         end else begin
-            // Simple adaptive threshold
             threshold <= (threshold + signal) >> 1;
 
             if (signal > threshold) begin
