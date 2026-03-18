@@ -1,19 +1,14 @@
-
-
 `default_nettype none
 `timescale 1ns / 1ps
 
 module tb ();
 
-  // Dump the signals to a file. 
-  // We use tb.fst to match the Makefile expectations.
   initial begin
     $dumpfile("tb.fst");
     $dumpvars(0, tb);
     #1;
   end
 
-  // Wire up the inputs and outputs
   reg clk;
   reg rst_n;
   reg ena;
@@ -24,7 +19,6 @@ module tb ();
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
-  // Instantiate the module
   tt_um_cfar_nobuzzer dut (
 `ifdef GL_TEST
       .VPWR(1'b1),
