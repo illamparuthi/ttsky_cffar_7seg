@@ -1,80 +1,37 @@
-<!---
-This file is used to generate your project datasheet.
---->
-
 ## How it works
 
-This project implements a **Constant False Alarm Rate (CFAR) based signal detection system** using a 14-bit digital input.
+This project implements a hardware-efficient **Constant False Alarm Rate (CFAR)** signal detection engine, optimized for area-constrained silicon footprints. It processes a 14-bit digital input to dynamically adapt to varying noise floors and detect valid target signals.
 
-The input signal is received from an external ADC and mapped using:
-- `ui_in[7:0]` → lower 8 bits  
-- `uio_in[5:0]` → upper 6 bits  
+**Input Mapping:**
+To bypass the standard 8-pin input limit, the design concatenates standard inputs with bidirectional pins configured as inputs:
+* `ui_in[7:0]`: Lower 8 bits of the incoming signal.
+* `uio_in[5:0]`: Upper 6 bits of the incoming signal (`uio_oe` = 0).
+* These combine to form a unified 14-bit data bus (`{uio_in[5:0], ui_in[7:0]}`).
 
-These are combined to form a **14-bit signal**.
-
-A simplified CFAR algorithm is used:
-- The system estimates a **noise threshold** using a running average
-- The incoming signal is compared with this adaptive threshold
-- If `signal > threshold` → **target detected (1)**
-- Else → **no detection (0)**
-
-The detection result is:
-- Converted into a **BCD value (0 or 1)**
-- Displayed on a **7-segment output (`uo_out[6:0]`)**
-- Also available as a **detection flag (`uo_out[7]`)**
-
-This adaptive approach allows reliable detection under varying noise conditions.
-
----
+**CFAR Architecture:**
+Instead of a memory-heavy sliding window, this design utilizes an Infinite Impulse Response (IIR) running average to estimate the background noise threshold.
+1. The baseline threshold continually updates: `threshold = (threshold + signal) >> 1`.
+2. A target is detected if the incoming signal exceeds this adaptive threshold multiplied by a fixed internal gain factor.
+3. The resulting binary state is routed directly to a built-in 7-segment display driver, providing immediate visual feedback alongside a dedicated high/low output flag (`uo_out[7]`).
 
 ## How to test
 
-1. Apply clock and reset:
-   - Provide clock to `clk`
-   - Set `rst_n = 0`, then `rst_n = 1`
+1. **Initialization:**
+    * Provide a standard clock signal to `clk`.
+    * Assert reset (`rst_n = 0`) to clear the internal threshold registers.
+    * Release reset (`rst_n = 1`) to begin normal operation.
 
-2. Provide ADC input:
-   - Lower 8 bits → `ui_in[7:0]`
-   - Upper 6 bits → `uio_in[5:0]`
+2. **Baseline / Noise Floor Test (No Detection):**
+    * Apply a steady, low-level signal (e.g., `ui_in = 50`, `uio_in = 0`).
+    * **Expected Result:** The threshold adapts to the noise floor. The 7-segment display shows `0` and the detection flag (`uo_out[7]`) remains `0`.
 
-3. Test cases:
-
-   - Low signal (no detection):
-     ```
-     ui_in = 10
-     uio_in = 0
-     ```
-     Expected output:
-     - 7-segment → 0
-     - detection flag → 0
-
-   - High signal (detection):
-     ```
-     ui_in = 200
-     uio_in = 0
-     ```
-     Expected output:
-     - 7-segment → 1
-     - detection flag → 1
-
-4. Observe outputs:
-   - `uo_out[6:0]` → 7-segment display
-   - `uo_out[7]` → detection result
-
----
+3. **Target Detection Test (Spike):**
+    * Inject a sudden signal spike (e.g., `ui_in = 250`, `uio_in = 0`).
+    * **Expected Result:** The signal abruptly exceeds the calculated `threshold * GAIN` condition. The 7-segment display immediately updates to `1` and the detection flag (`uo_out[7]`) goes HIGH (`1`).
 
 ## External hardware
 
-- **ADC (Analog-to-Digital Converter)**  
-  Provides the 14-bit input signal
+* **14-bit Signal Source:** An external Analog-to-Digital Converter (ADC) or a microcontroller (e.g., Raspberry Pi Pico on the Tiny Tapeout demo board) to generate the input vectors.
+* **7-Segment Display:** The standard Tiny Tapeout PCB display to visualize the detection state.
 
-- **7-Segment Display**  
-  Displays detection result (0 or 1)
-
-No additional external hardware (such as buzzer) is used.
-
----
-
-## Notes
-
-This design is optimized for **low area and limited I/O constraints**, making it suitable for TinyTapeout.
+*(Note: To maximize pin availability for the 14-bit data bus, no additional external peripherals, such as buzzers, are used).*
